@@ -4,10 +4,10 @@ Newest first. One entry per session.
 
 ## 2026-09-09 — Fix the prototype's broken bits
 
-Ops did the fixes (single file, frontend only). Vera verification in headless Chromium: pending.
+Ops did the fixes (single file, frontend only). Vera verified in headless Chromium at desktop and 390px, no console errors. She caught one miss: an edited draft was still sent as the original after Done Editing. Fixed and re-run.
 
 - Filter tabs ignored clicks on the count number inside them. Click now resolves to the tab.
-- Edit Draft needed two clicks to open. Now toggles a class instead of reading inline style.
+- Edit Draft needed two clicks to open. Now toggles a class instead of reading inline style. Approve always sends what's in the editor, edited or not.
 - Nothing was HTML-escaped. Customer messages, names, drafts and typed replies now go through `esc()`. Typed script no longer runs.
 - Reopening a conversation claimed the AI had held it for a health reason. Hold reason is now data (`holdReason`) and the copy only says "health" when it's true.
 - Spam couldn't be undone. Spam now has Reopen like resolved does.

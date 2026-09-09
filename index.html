@@ -411,11 +411,10 @@ function renderChatPanel(conv) {
 
 function approveDraft(id) {
   const conv = conversations.find(c => c.id === id);
-  if (document.querySelector(".ai-draft-box.editing")) {
-    conv.messages.push({ from: "shop", text: document.getElementById("draft-edit").value, time: "Just now" });
-  } else {
-    conv.messages.push({ from: "shop", text: conv.aiDraft, time: "Just now" });
-  }
+  const textarea = document.getElementById("draft-edit");
+  const text = (textarea ? textarea.value : conv.aiDraft).trim();
+  if (!text) return;
+  conv.messages.push({ from: "shop", text, time: "Just now" });
   conv.aiDraft = null;
   conv.status = "resolved";
   conv.tag = "resolved";
@@ -426,6 +425,7 @@ function approveDraft(id) {
 }
 
 function toggleEdit() {
+  const conv = conversations.find(c => c.id === selectedConvId);
   const box = document.querySelector(".ai-draft-box");
   const display = document.getElementById("draft-display");
   const textarea = document.getElementById("draft-edit");
@@ -440,6 +440,7 @@ function toggleEdit() {
     btn.textContent = "✎ Edit Draft";
     btn.classList.remove("btn-primary");
     btn.classList.add("btn-outline");
+    conv.aiDraft = textarea.value;
     display.innerHTML = multiline(textarea.value);
   }
 }
