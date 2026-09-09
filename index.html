@@ -12,6 +12,7 @@
   .app { display: flex; height: 100vh; }
   .sidebar { width: 380px; min-width: 380px; background: #fff; border-right: 1px solid #dddfe2; display: flex; flex-direction: column; }
   .main { flex: 1; display: flex; flex-direction: column; background: #f0f2f5; }
+  .back-btn { display: none; }
 
   /* Header */
   .sidebar-header { padding: 16px 20px; border-bottom: 1px solid #dddfe2; }
@@ -110,6 +111,28 @@
 
   /* Badge */
   .badge { display: inline-flex; align-items: center; justify-content: center; background: #ff5252; color: #fff; font-size: 11px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 10px; padding: 0 6px; }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .app { display: block; }
+    .sidebar { width: 100%; min-width: 0; height: 100vh; }
+    .main { display: none; height: 100vh; width: 100%; }
+    body.conv-open .sidebar { display: none; }
+    body.conv-open .main { display: flex; }
+    .back-btn { display: inline-flex; }
+    .chat-header { padding: 10px 12px; }
+    .chat-header-actions { gap: 4px; }
+    .chat-header-actions .btn { padding: 6px 10px; font-size: 12px; }
+    .messages { padding: 16px 12px; }
+    .ai-draft-box { margin: 0 12px 12px; }
+    .chat-input { padding: 10px 12px 14px; }
+    .chat-input textarea { font-size: 16px; }
+    .message { max-width: 85%; }
+    .filters { padding: 10px 12px; }
+    .filter-btn { padding: 8px 14px; font-size: 13px; }
+    .conversation-item { padding: 14px 12px; }
+    .btn { padding: 10px 14px; }
+  }
 </style>
 </head>
 <body>
@@ -293,8 +316,15 @@ function selectConversation(id) {
   selectedConvId = id;
   const conv = conversations.find(c => c.id === id);
   conv.unread = false;
+  document.body.classList.add("conv-open");
   renderConversationList();
   renderChatPanel(conv);
+}
+
+function closeConversation() {
+  document.body.classList.remove("conv-open");
+  selectedConvId = null;
+  renderConversationList();
 }
 
 function renderChatPanel(conv) {
@@ -341,6 +371,7 @@ function renderChatPanel(conv) {
     <div class="chat-panel">
       <div class="chat-header">
         <div class="chat-header-left">
+          <button class="btn btn-outline back-btn" onclick="closeConversation()">←</button>
           <div class="avatar ${conv.color}">${conv.avatar}</div>
           <div>
             <div class="chat-header-name">${conv.name}</div>
