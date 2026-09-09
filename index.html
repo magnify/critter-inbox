@@ -6,10 +6,10 @@
 <title>ExoticChat — Customer Service Dashboard</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1c1e21; height: 100vh; overflow: hidden; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1c1e21; height: 100vh; height: 100dvh; overflow: hidden; }
 
   /* Layout */
-  .app { display: flex; height: 100vh; }
+  .app { display: flex; height: 100vh; height: 100dvh; }
   .sidebar { width: 380px; min-width: 380px; background: #fff; border-right: 1px solid #dddfe2; display: flex; flex-direction: column; }
   .main { flex: 1; display: flex; flex-direction: column; background: #f0f2f5; }
   .back-btn { display: none; }
@@ -82,6 +82,8 @@
   .ai-confidence { font-size: 12px; color: #65676b; background: #f0f2f5; padding: 2px 10px; border-radius: 10px; }
   .ai-draft-text { font-size: 14px; line-height: 1.5; color: #1c1e21; padding: 12px; background: #f8fdf8; border-radius: 8px; border: 1px solid #e8f5e9; margin-bottom: 12px; }
   .ai-draft-textarea { width: 100%; min-height: 80px; border: 1px solid #dddfe2; border-radius: 8px; padding: 12px; font-size: 14px; font-family: inherit; resize: vertical; display: none; }
+  .ai-draft-box.editing .ai-draft-textarea { display: block; }
+  .ai-draft-box.editing .ai-draft-text { display: none; }
   .ai-draft-actions { display: flex; gap: 8px; }
   .btn { padding: 8px 18px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
   .btn-primary { background: #0084ff; color: #fff; }
@@ -115,8 +117,8 @@
   /* Mobile */
   @media (max-width: 768px) {
     .app { display: block; }
-    .sidebar { width: 100%; min-width: 0; height: 100vh; }
-    .main { display: none; height: 100vh; width: 100%; }
+    .sidebar { width: 100%; min-width: 0; height: 100vh; height: 100dvh; }
+    .main { display: none; height: 100vh; height: 100dvh; width: 100%; }
     body.conv-open .sidebar { display: none; }
     body.conv-open .main { display: flex; }
     .back-btn { display: inline-flex; }
@@ -177,7 +179,7 @@ const conversations = [
       { from: "customer", text: "Hi! My bearded dragon hasn't been eating for 3 days now. He usually eats every day. Is something wrong?", time: "10:32 AM" },
       { from: "customer", text: "He's also been sleeping a lot more than usual", time: "10:32 AM" },
     ],
-    aiDraft: null,
+    aiDraft: null, holdReason: "health",
     tag: "attention"
   },
   {
@@ -218,7 +220,7 @@ const conversations = [
       { from: "customer", text: "I bought a chameleon from you last week and it looks like it's having trouble shedding", time: "7:30 AM" },
       { from: "customer", text: "There's skin stuck on its toes and eyes. Is this an emergency?", time: "7:31 AM" },
     ],
-    aiDraft: null,
+    aiDraft: null, holdReason: "health",
     tag: "attention"
   },
   {
@@ -259,7 +261,7 @@ const conversations = [
       { from: "customer", text: "I bought a corn snake from you 2 months ago and it hasn't shed once. Is that normal?", time: "3:00 AM" },
       { from: "customer", text: "Also the substrate you recommended seems too dry, should I mist more?", time: "3:01 AM" },
     ],
-    aiDraft: null,
+    aiDraft: null, holdReason: "health",
     tag: "attention"
   },
   {
@@ -273,6 +275,13 @@ const conversations = [
     tag: "drafted"
   },
 ];
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function multiline(str) { return esc(str).replace(/\n/g, "<br>"); }
 
 let activeFilter = "all";
 let selectedConvId = null;
@@ -298,13 +307,13 @@ function renderConversationList() {
   list.innerHTML = filtered.map(c => `
     <div class="conversation-item ${selectedConvId === c.id ? 'selected' : ''} ${c.status === 'resolved' ? 'resolved' : ''} ${c.status === 'spam' ? 'spam' : ''}"
          onclick="selectConversation(${c.id})">
-      <div class="avatar ${c.color}">${c.avatar}</div>
+      <div class="avatar ${c.color}">${esc(c.avatar)}</div>
       <div class="conv-info">
         <div class="conv-top">
-          <span class="conv-name">${c.name}</span>
-          <span class="conv-time">${c.time}</span>
+          <span class="conv-name">${esc(c.name)}</span>
+          <span class="conv-time">${esc(c.time)}</span>
         </div>
-        <div class="conv-preview">${c.messages[c.messages.length - 1].text}</div>
+        <div class="conv-preview">${esc(c.messages[c.messages.length - 1].text)}</div>
         <span class="conv-tag tag-${c.tag}">${c.tag === 'attention' ? 'Needs Attention' : c.tag === 'drafted' ? 'AI Drafted' : c.tag === 'resolved' ? 'Resolved' : 'Spam'}</span>
       </div>
       ${c.unread ? '<div class="unread-dot"></div>' : ''}
@@ -333,8 +342,8 @@ function renderChatPanel(conv) {
 
   let messagesHTML = conv.messages.map(m => `
     <div class="message ${m.from === 'shop' ? 'shop' : 'customer'}">
-      ${m.text}
-      <div class="time">${m.time}</div>
+      ${multiline(m.text)}
+      <div class="time">${esc(m.time)}</div>
     </div>
   `).join("");
 
@@ -346,8 +355,8 @@ function renderChatPanel(conv) {
           <div class="ai-draft-label"><span class="sparkle">✨</span> AI Suggested Reply</div>
           <span class="ai-confidence">Confidence: ${conv.confidence}%</span>
         </div>
-        <div class="ai-draft-text" id="draft-display">${conv.aiDraft.replace(/\n/g, '<br>')}</div>
-        <textarea class="ai-draft-textarea" id="draft-edit">${conv.aiDraft}</textarea>
+        <div class="ai-draft-text" id="draft-display">${multiline(conv.aiDraft)}</div>
+        <textarea class="ai-draft-textarea" id="draft-edit">${esc(conv.aiDraft)}</textarea>
         <div class="ai-draft-actions">
           <button class="btn btn-success" onclick="approveDraft(${conv.id})">✓ Approve & Send</button>
           <button class="btn btn-outline" id="edit-btn" onclick="toggleEdit()">✎ Edit Draft</button>
@@ -357,12 +366,15 @@ function renderChatPanel(conv) {
       </div>
     `;
   } else if (conv.status === "attention") {
+    const note = conv.holdReason === "health"
+      ? "This looks like a health question, so no draft was written. Reply yourself below."
+      : "No draft for this one. Reply yourself below.";
     aiDraftHTML = `
       <div class="ai-draft-box" style="border-top-color: #ff5252;">
         <div class="ai-draft-header">
-          <div class="ai-draft-label" style="color: #d32f2f;"><span class="sparkle">⚠️</span> Needs Manual Reply</div>
+          <div class="ai-draft-label" style="color: #d32f2f;"><span class="sparkle">⚠️</span> Needs your reply</div>
         </div>
-        <div style="font-size: 13px; color: #65676b; margin-bottom: 12px;">This message requires your personal attention. AI could not generate a safe draft for health/urgent topics.</div>
+        <div style="font-size: 13px; color: #65676b;">${note}</div>
       </div>
     `;
   }
@@ -372,15 +384,16 @@ function renderChatPanel(conv) {
       <div class="chat-header">
         <div class="chat-header-left">
           <button class="btn btn-outline back-btn" onclick="closeConversation()">←</button>
-          <div class="avatar ${conv.color}">${conv.avatar}</div>
+          <div class="avatar ${conv.color}">${esc(conv.avatar)}</div>
           <div>
-            <div class="chat-header-name">${conv.name}</div>
+            <div class="chat-header-name">${esc(conv.name)}</div>
             <div class="chat-header-status">${statusLabel}</div>
           </div>
         </div>
         <div class="chat-header-actions">
-          ${conv.status !== 'resolved' ? `<button class="btn btn-outline" onclick="resolveConversation(${conv.id})">✓ Resolve</button>` : ''}
-          ${conv.status === 'resolved' ? `<button class="btn btn-outline" onclick="reopenConversation(${conv.id})">↩ Reopen</button>` : ''}
+          ${conv.status === 'resolved' || conv.status === 'spam'
+            ? `<button class="btn btn-outline" onclick="reopenConversation(${conv.id})">↩ Reopen</button>`
+            : `<button class="btn btn-outline" onclick="resolveConversation(${conv.id})">✓ Resolve</button>`}
         </div>
       </div>
       <div class="messages">
@@ -398,7 +411,7 @@ function renderChatPanel(conv) {
 
 function approveDraft(id) {
   const conv = conversations.find(c => c.id === id);
-  if (document.getElementById("draft-edit").style.display === "block") {
+  if (document.querySelector(".ai-draft-box.editing")) {
     conv.messages.push({ from: "shop", text: document.getElementById("draft-edit").value, time: "Just now" });
   } else {
     conv.messages.push({ from: "shop", text: conv.aiDraft, time: "Just now" });
@@ -413,22 +426,21 @@ function approveDraft(id) {
 }
 
 function toggleEdit() {
+  const box = document.querySelector(".ai-draft-box");
   const display = document.getElementById("draft-display");
   const textarea = document.getElementById("draft-edit");
   const btn = document.getElementById("edit-btn");
-  if (textarea.style.display === "none") {
-    textarea.style.display = "block";
-    display.style.display = "none";
+  const editing = box.classList.toggle("editing");
+  if (editing) {
     btn.textContent = "✓ Done Editing";
     btn.classList.add("btn-primary");
     btn.classList.remove("btn-outline");
+    textarea.focus();
   } else {
-    textarea.style.display = "none";
-    display.style.display = "block";
     btn.textContent = "✎ Edit Draft";
     btn.classList.remove("btn-primary");
     btn.classList.add("btn-outline");
-    display.innerHTML = textarea.value.replace(/\n/g, '<br>');
+    display.innerHTML = multiline(textarea.value);
   }
 }
 
@@ -463,6 +475,7 @@ function reopenConversation(id) {
   const conv = conversations.find(c => c.id === id);
   conv.status = "attention";
   conv.tag = "attention";
+  conv.holdReason = null;
   showToast("Conversation reopened");
   selectConversation(id);
   updateCounts();
@@ -489,10 +502,11 @@ function showToast(text) {
 
 // Filters
 document.getElementById("filters").addEventListener("click", e => {
-  if (!e.target.classList.contains("filter-btn")) return;
+  const btn = e.target.closest(".filter-btn");
+  if (!btn) return;
   document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-  e.target.classList.add("active");
-  activeFilter = e.target.dataset.filter;
+  btn.classList.add("active");
+  activeFilter = btn.dataset.filter;
   renderConversationList();
 });
 
