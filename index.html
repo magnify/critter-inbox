@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ExoticChat — Customer Service Dashboard</title>
+<title>ExoticChat — Inbox</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1c1e21; height: 100vh; height: 100dvh; overflow: hidden; }
@@ -366,7 +366,7 @@ function renderGroup(g, items) {
   if (items.length) body = items.map(renderItem).join("");
   else if (g.key === "attention") body = `<div class="group-empty"><strong>Nothing needs you.</strong>Go look after the animals.</div>`;
   else if (g.key === "drafted") body = `<div class="group-empty">No replies waiting.</div>`;
-  else body = `<div class="group-empty">Nothing done yet today.</div>`;
+  else body = `<div class="group-empty">Nothing done yet.</div>`;
   return `<div class="group-head ${g.key}">${head}</div>${body}`;
 }
 
@@ -444,16 +444,16 @@ function renderChatPanel(conv) {
         <textarea class="ai-draft-textarea" id="draft-edit">${esc(conv.aiDraft)}</textarea>
         <div class="ai-draft-actions">
           <button class="btn btn-success" onclick="approveDraft(${conv.id})">✓ Approve & Send</button>
-          <button class="btn btn-outline" id="edit-btn" onclick="toggleEdit()">✎ Edit Draft</button>
-          <button class="btn btn-outline" onclick="resolveConversation(${conv.id})">Mark Resolved</button>
+          <button class="btn btn-outline" id="edit-btn" onclick="toggleEdit()">✎ Edit Reply</button>
+          <button class="btn btn-outline" onclick="resolveConversation(${conv.id})">Mark Done</button>
           <button class="btn btn-danger" onclick="spamConversation(${conv.id})">🚫 Spam</button>
         </div>
       </div>
     `;
   } else if (conv.status === "attention") {
     const note = conv.holdReason === "health"
-      ? "This looks like a health question, so no draft was written. Reply yourself below."
-      : "No draft for this one. Reply yourself below.";
+      ? "This looks like a health issue, so no reply was drafted. Reply yourself below."
+      : "No reply was drafted for this one. Reply yourself below.";
     aiDraftHTML = `
       <div class="ai-draft-box" style="border-top-color: #ff5252;">
         <div class="ai-draft-header">
@@ -478,7 +478,7 @@ function renderChatPanel(conv) {
         <div class="chat-header-actions">
           ${conv.status === 'resolved' || conv.status === 'spam'
             ? `<button class="btn btn-outline" onclick="reopenConversation(${conv.id})">↩ Reopen</button>`
-            : `<button class="btn btn-outline" onclick="resolveConversation(${conv.id})">✓ Resolve</button>`}
+            : `<button class="btn btn-outline" onclick="resolveConversation(${conv.id})">✓ Done</button>`}
         </div>
       </div>
       <div class="messages">
@@ -513,7 +513,7 @@ function toggleEdit() {
     btn.classList.remove("btn-outline");
     textarea.focus();
   } else {
-    btn.textContent = "✎ Edit Draft";
+    btn.textContent = "✎ Edit Reply";
     btn.classList.remove("btn-primary");
     btn.classList.add("btn-outline");
     conv.aiDraft = textarea.value;
@@ -540,7 +540,7 @@ function resolveConversation(id) {
   const conv = conversations.find(c => c.id === id);
   conv.status = "resolved";
   conv.aiDraft = null;
-  showToast("Conversation resolved");
+  showToast("Marked as done");
   selectConversation(id);
   updateCounts();
   renderConversationList();
@@ -549,7 +549,6 @@ function resolveConversation(id) {
 function reopenConversation(id) {
   const conv = conversations.find(c => c.id === id);
   conv.status = "attention";
-  conv.holdReason = null;
   showToast("Conversation reopened");
   selectConversation(id);
   updateCounts();
