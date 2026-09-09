@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExoticChat — Customer Service Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1c1e21; height: 100vh; overflow: hidden; }
+
+  /* Layout */
+  .app { display: flex; height: 100vh; }
+  .sidebar { width: 380px; min-width: 380px; background: #fff; border-right: 1px solid #dddfe2; display: flex; flex-direction: column; }
+  .main { flex: 1; display: flex; flex-direction: column; background: #f0f2f5; }
+
+  /* Header */
+  .sidebar-header { padding: 16px 20px; border-bottom: 1px solid #dddfe2; }
+  .sidebar-header h1 { font-size: 20px; font-weight: 700; color: #1c1e21; display: flex; align-items: center; gap: 8px; }
+  .sidebar-header h1 span { font-size: 24px; }
+  .stats { display: flex; gap: 12px; margin-top: 10px; }
+  .stat { font-size: 12px; color: #65676b; }
+  .stat strong { color: #1c1e21; }
+
+  /* Filters */
+  .filters { display: flex; gap: 6px; padding: 12px 20px; border-bottom: 1px solid #e4e6eb; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; background: #e4e6eb; color: #65676b; transition: all 0.15s; }
+  .filter-btn:hover { background: #d8dadf; }
+  .filter-btn.active { background: #0084ff; color: #fff; }
+  .filter-btn .count { margin-left: 4px; font-size: 11px; opacity: 0.8; }
+
+  /* Conversation list */
+  .conversation-list { flex: 1; overflow-y: auto; }
+  .conversation-item { display: flex; align-items: center; padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #f0f2f5; transition: background 0.1s; position: relative; }
+  .conversation-item:hover { background: #f0f2f5; }
+  .conversation-item.selected { background: #e7f3ff; }
+  .conversation-item.resolved { opacity: 0.5; }
+  .conversation-item.spam { opacity: 0.35; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; background: #0084ff; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 18px; flex-shrink: 0; }
+  .avatar.orange { background: #f7b928; }
+  .avatar.green { background: #00c853; }
+  .avatar.red { background: #ff5252; }
+  .avatar.purple { background: #9c27b0; }
+  .avatar.teal { background: #009688; }
+  .conv-info { flex: 1; margin-left: 12px; min-width: 0; }
+  .conv-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .conv-name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .conv-time { font-size: 12px; color: #65676b; white-space: nowrap; margin-left: 8px; }
+  .conv-preview { font-size: 13px; color: #65676b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .conv-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .tag-attention { background: #ffebee; color: #d32f2f; }
+  .tag-drafted { background: #e8f5e9; color: #2e7d32; }
+  .tag-resolved { background: #f5f5f5; color: #9e9e9e; }
+  .tag-spam { background: #fce4ec; color: #880e4f; }
+  .unread-dot { width: 10px; height: 10px; border-radius: 50%; background: #0084ff; position: absolute; top: 16px; right: 16px; }
+
+  /* Main panel */
+  .main-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: #65676b; font-size: 18px; flex-direction: column; gap: 8px; }
+  .main-empty .icon { font-size: 48px; opacity: 0.3; }
+
+  .chat-panel { flex: 1; display: flex; flex-direction: column; }
+  .chat-header { padding: 16px 24px; background: #fff; border-bottom: 1px solid #dddfe2; display: flex; align-items: center; justify-content: space-between; }
+  .chat-header-left { display: flex; align-items: center; gap: 12px; }
+  .chat-header-name { font-weight: 700; font-size: 16px; }
+  .chat-header-status { font-size: 12px; color: #65676b; }
+  .chat-header-actions { display: flex; gap: 8px; }
+
+  /* Messages */
+  .messages { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 8px; }
+  .message { max-width: 70%; padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.4; position: relative; }
+  .message.customer { align-self: flex-start; background: #e4e6eb; border-bottom-left-radius: 4px; }
+  .message.shop { align-self: flex-end; background: #0084ff; color: #fff; border-bottom-right-radius: 4px; }
+  .message .time { font-size: 11px; opacity: 0.6; margin-top: 4px; }
+  .message.shop .time { text-align: right; }
+  .date-divider { text-align: center; font-size: 12px; color: #65676b; padding: 8px 0; align-self: center; }
+
+  /* AI Draft box */
+  .ai-draft-box { background: #fff; border-top: 2px solid #00c853; margin: 0 24px 16px; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .ai-draft-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .ai-draft-label { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; color: #2e7d32; }
+  .ai-draft-label .sparkle { font-size: 16px; }
+  .ai-confidence { font-size: 12px; color: #65676b; background: #f0f2f5; padding: 2px 10px; border-radius: 10px; }
+  .ai-draft-text { font-size: 14px; line-height: 1.5; color: #1c1e21; padding: 12px; background: #f8fdf8; border-radius: 8px; border: 1px solid #e8f5e9; margin-bottom: 12px; }
+  .ai-draft-textarea { width: 100%; min-height: 80px; border: 1px solid #dddfe2; border-radius: 8px; padding: 12px; font-size: 14px; font-family: inherit; resize: vertical; display: none; }
+  .ai-draft-actions { display: flex; gap: 8px; }
+  .btn { padding: 8px 18px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+  .btn-primary { background: #0084ff; color: #fff; }
+  .btn-primary:hover { background: #0073e6; }
+  .btn-success { background: #00c853; color: #fff; }
+  .btn-success:hover { background: #00b248; }
+  .btn-outline { background: #fff; color: #65676b; border: 1px solid #dddfe2; }
+  .btn-outline:hover { background: #f0f2f5; }
+  .btn-danger { background: #fff; color: #d32f2f; border: 1px solid #ffcdd2; }
+  .btn-danger:hover { background: #ffebee; }
+
+  /* Input area */
+  .chat-input { padding: 12px 24px 16px; background: #fff; border-top: 1px solid #dddfe2; display: flex; gap: 8px; align-items: flex-end; }
+  .chat-input textarea { flex: 1; border: 1px solid #dddfe2; border-radius: 20px; padding: 10px 16px; font-size: 14px; font-family: inherit; resize: none; max-height: 100px; outline: none; }
+  .chat-input textarea:focus { border-color: #0084ff; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1c1e21; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.2); transition: transform 0.3s ease; z-index: 1000; display: flex; align-items: center; gap: 8px; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast .check { color: #00c853; font-size: 18px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #999; }
+
+  /* Badge */
+  .badge { display: inline-flex; align-items: center; justify-content: center; background: #ff5252; color: #fff; font-size: 11px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 10px; padding: 0 6px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1><span>🦎</span> ExoticChat</h1>
+      <div class="stats">
+        <span class="stat"><strong id="stat-total">10</strong> conversations</span>
+        <span class="stat"><strong id="stat-unread">3</strong> need attention</span>
+        <span class="stat"><strong id="stat-drafted">5</strong> AI drafted</span>
+      </div>
+    </div>
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-filter="all">All <span class="count" id="count-all"></span></button>
+      <button class="filter-btn" data-filter="attention">Needs Attention <span class="count" id="count-attention"></span></button>
+      <button class="filter-btn" data-filter="drafted">AI Drafted <span class="count" id="count-drafted"></span></button>
+      <button class="filter-btn" data-filter="resolved">Resolved <span class="count" id="count-resolved"></span></button>
+    </div>
+    <div class="conversation-list" id="conversation-list"></div>
+  </div>
+
+  <!-- Main panel -->
+  <div class="main" id="main-panel">
+    <div class="main-empty" id="empty-state">
+      <div class="icon">💬</div>
+      <div>Select a conversation to get started</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="check">✓</span> <span id="toast-text">Reply sent!</span></div>
+
+<script>
+const conversations = [
+  {
+    id: 1, name: "Sarah M.", avatar: "S", color: "orange", time: "2m ago",
+    status: "attention", unread: true,
+    messages: [
+      { from: "customer", text: "Hi! My bearded dragon hasn't been eating for 3 days now. He usually eats every day. Is something wrong?", time: "10:32 AM" },
+      { from: "customer", text: "He's also been sleeping a lot more than usual", time: "10:32 AM" },
+    ],
+    aiDraft: null,
+    tag: "attention"
+  },
+  {
+    id: 2, name: "Jake T.", avatar: "J", color: "green", time: "8m ago",
+    status: "drafted", unread: false,
+    messages: [
+      { from: "customer", text: "Hey, do you guys have any ball pythons available right now?", time: "9:15 AM" },
+      { from: "customer", text: "Looking for a male, any morph is fine", time: "9:15 AM" },
+    ],
+    aiDraft: "Hi Jake! Thanks for reaching out 🐍 We currently have 3 male ball pythons available — a normal, a pastel, and a banana morph. Prices range from $75 to $200. Would you like photos of any of them?",
+    confidence: 92,
+    tag: "drafted"
+  },
+  {
+    id: 3, name: "Lisa R.", avatar: "L", color: "purple", time: "15m ago",
+    status: "drafted", unread: false,
+    messages: [
+      { from: "customer", text: "How much for a leopard gecko setup? Like a full tank with everything", time: "8:45 AM" },
+    ],
+    aiDraft: "Hi Lisa! Great choice — leopard geckos are wonderful pets 🦎 For a complete setup we recommend:\n\n• 20-gallon tank — $45\n• Heat mat + thermostat — $35\n• Hides & decor — $25\n• Substrate — $15\n\nTotal for setup: ~$120\nLeopard gecko: $40-80 depending on morph\n\nWe have a starter bundle deal for $160 that includes everything. Want the details?",
+    confidence: 88,
+    tag: "drafted"
+  },
+  {
+    id: 4, name: "Mike D.", avatar: "M", color: "teal", time: "32m ago",
+    status: "drafted", unread: false,
+    messages: [
+      { from: "customer", text: "What are your opening hours on Saturday?", time: "8:01 AM" },
+    ],
+    aiDraft: "Hey Mike! We're open Saturday 10 AM – 6 PM. Hope to see you then! 🦜",
+    confidence: 97,
+    tag: "drafted"
+  },
+  {
+    id: 5, name: "Emma W.", avatar: "E", color: "orange", time: "1h ago",
+    status: "attention", unread: true,
+    messages: [
+      { from: "customer", text: "I bought a chameleon from you last week and it looks like it's having trouble shedding", time: "7:30 AM" },
+      { from: "customer", text: "There's skin stuck on its toes and eyes. Is this an emergency?", time: "7:31 AM" },
+    ],
+    aiDraft: null,
+    tag: "attention"
+  },
+  {
+    id: 6, name: "Chris P.", avatar: "C", color: "green", time: "1.5h ago",
+    status: "drafted", unread: false,
+    messages: [
+      { from: "customer", text: "Can I reserve a crested gecko? The gargoyle one in the window", time: "6:45 AM" },
+    ],
+    aiDraft: "Hi Chris! Sure thing, we can hold the gargoyle gecko for you for 48 hours with a $20 deposit. Just stop by when you're ready! His price is $120. Want me to note your name on him?",
+    confidence: 90,
+    tag: "drafted"
+  },
+  {
+    id: 7, name: "BotSpam420", avatar: "B", color: "red", time: "2h ago",
+    status: "spam", unread: false,
+    messages: [
+      { from: "customer", text: "🔥🔥🔥 Buy followers cheap!! Visit www.totallynotascam.biz 🔥🔥🔥", time: "5:12 AM" },
+    ],
+    aiDraft: null,
+    tag: "spam"
+  },
+  {
+    id: 8, name: "Amy K.", avatar: "A", color: "purple", time: "3h ago",
+    status: "resolved", unread: false,
+    messages: [
+      { from: "customer", text: "Do you guys sell frozen mice for snakes?", time: "4:00 AM" },
+      { from: "shop", text: "Hi Amy! Yes we do! We have small ($2), medium ($3), and large ($4) frozen mice. We sell them individually or in packs of 10 with a 10% discount.", time: "4:15 AM" },
+      { from: "customer", text: "Perfect! I'll swing by tomorrow for a pack of 10 medium ones", time: "4:20 AM" },
+      { from: "shop", text: "Sounds great, we'll have them ready for you! 🐭", time: "4:22 AM" },
+    ],
+    aiDraft: null,
+    tag: "resolved"
+  },
+  {
+    id: 9, name: "David L.", avatar: "D", color: "teal", time: "4h ago",
+    status: "attention", unread: true,
+    messages: [
+      { from: "customer", text: "I bought a corn snake from you 2 months ago and it hasn't shed once. Is that normal?", time: "3:00 AM" },
+      { from: "customer", text: "Also the substrate you recommended seems too dry, should I mist more?", time: "3:01 AM" },
+    ],
+    aiDraft: null,
+    tag: "attention"
+  },
+  {
+    id: 10, name: "Rachel F.", avatar: "R", color: "orange", time: "5h ago",
+    status: "drafted", unread: false,
+    messages: [
+      { from: "customer", text: "What's the best beginner reptile? I've never had one before but I'm really interested", time: "2:00 AM" },
+    ],
+    aiDraft: "Hey Rachel! Great question 🦎 For first-time reptile owners we usually recommend:\n\n1. **Leopard Gecko** — Super easy care, docile, great eaters. ~$40-80\n2. **Crested Gecko** — No special heating needed, fun to watch. ~$50-100\n3. **Corn Snake** — Hardy and gentle, very forgiving of beginner mistakes. ~$50-100\n\nWe love helping beginners get started! Want to come in and meet some of these guys in person?",
+    confidence: 95,
+    tag: "drafted"
+  },
+];
+
+let activeFilter = "all";
+let selectedConvId = null;
+
+function getFilteredConversations() {
+  if (activeFilter === "all") return conversations;
+  return conversations.filter(c => c.status === activeFilter);
+}
+
+function updateCounts() {
+  document.getElementById("count-all").textContent = conversations.length;
+  document.getElementById("count-attention").textContent = conversations.filter(c => c.status === "attention").length;
+  document.getElementById("count-drafted").textContent = conversations.filter(c => c.status === "drafted").length;
+  document.getElementById("count-resolved").textContent = conversations.filter(c => c.status === "resolved").length;
+  document.getElementById("stat-unread").textContent = conversations.filter(c => c.status === "attention").length;
+  document.getElementById("stat-drafted").textContent = conversations.filter(c => c.status === "drafted").length;
+  document.getElementById("stat-total").textContent = conversations.length;
+}
+
+function renderConversationList() {
+  const list = document.getElementById("conversation-list");
+  const filtered = getFilteredConversations();
+  list.innerHTML = filtered.map(c => `
+    <div class="conversation-item ${selectedConvId === c.id ? 'selected' : ''} ${c.status === 'resolved' ? 'resolved' : ''} ${c.status === 'spam' ? 'spam' : ''}"
+         onclick="selectConversation(${c.id})">
+      <div class="avatar ${c.color}">${c.avatar}</div>
+      <div class="conv-info">
+        <div class="conv-top">
+          <span class="conv-name">${c.name}</span>
+          <span class="conv-time">${c.time}</span>
+        </div>
+        <div class="conv-preview">${c.messages[c.messages.length - 1].text}</div>
+        <span class="conv-tag tag-${c.tag}">${c.tag === 'attention' ? 'Needs Attention' : c.tag === 'drafted' ? 'AI Drafted' : c.tag === 'resolved' ? 'Resolved' : 'Spam'}</span>
+      </div>
+      ${c.unread ? '<div class="unread-dot"></div>' : ''}
+    </div>
+  `).join("");
+}
+
+function selectConversation(id) {
+  selectedConvId = id;
+  const conv = conversations.find(c => c.id === id);
+  conv.unread = false;
+  renderConversationList();
+  renderChatPanel(conv);
+}
+
+function renderChatPanel(conv) {
+  const main = document.getElementById("main-panel");
+  const statusLabel = conv.status === "attention" ? "🔴 Needs attention" : conv.status === "drafted" ? "🟢 AI has drafted reply" : conv.status === "resolved" ? "⚪ Resolved" : "🚫 Spam";
+
+  let messagesHTML = conv.messages.map(m => `
+    <div class="message ${m.from === 'shop' ? 'shop' : 'customer'}">
+      ${m.text}
+      <div class="time">${m.time}</div>
+    </div>
+  `).join("");
+
+  let aiDraftHTML = "";
+  if (conv.aiDraft) {
+    aiDraftHTML = `
+      <div class="ai-draft-box">
+        <div class="ai-draft-header">
+          <div class="ai-draft-label"><span class="sparkle">✨</span> AI Suggested Reply</div>
+          <span class="ai-confidence">Confidence: ${conv.confidence}%</span>
+        </div>
+        <div class="ai-draft-text" id="draft-display">${conv.aiDraft.replace(/\n/g, '<br>')}</div>
+        <textarea class="ai-draft-textarea" id="draft-edit">${conv.aiDraft}</textarea>
+        <div class="ai-draft-actions">
+          <button class="btn btn-success" onclick="approveDraft(${conv.id})">✓ Approve & Send</button>
+          <button class="btn btn-outline" id="edit-btn" onclick="toggleEdit()">✎ Edit Draft</button>
+          <button class="btn btn-outline" onclick="resolveConversation(${conv.id})">Mark Resolved</button>
+          <button class="btn btn-danger" onclick="spamConversation(${conv.id})">🚫 Spam</button>
+        </div>
+      </div>
+    `;
+  } else if (conv.status === "attention") {
+    aiDraftHTML = `
+      <div class="ai-draft-box" style="border-top-color: #ff5252;">
+        <div class="ai-draft-header">
+          <div class="ai-draft-label" style="color: #d32f2f;"><span class="sparkle">⚠️</span> Needs Manual Reply</div>
+        </div>
+        <div style="font-size: 13px; color: #65676b; margin-bottom: 12px;">This message requires your personal attention. AI could not generate a safe draft for health/urgent topics.</div>
+      </div>
+    `;
+  }
+
+  main.innerHTML = `
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="avatar ${conv.color}">${conv.avatar}</div>
+          <div>
+            <div class="chat-header-name">${conv.name}</div>
+            <div class="chat-header-status">${statusLabel}</div>
+          </div>
+        </div>
+        <div class="chat-header-actions">
+          ${conv.status !== 'resolved' ? `<button class="btn btn-outline" onclick="resolveConversation(${conv.id})">✓ Resolve</button>` : ''}
+          ${conv.status === 'resolved' ? `<button class="btn btn-outline" onclick="reopenConversation(${conv.id})">↩ Reopen</button>` : ''}
+        </div>
+      </div>
+      <div class="messages">
+        <div class="date-divider">Today</div>
+        ${messagesHTML}
+      </div>
+      ${aiDraftHTML}
+      <div class="chat-input">
+        <textarea placeholder="Type a reply..." rows="1" id="manual-reply"></textarea>
+        <button class="btn btn-primary" onclick="sendManualReply(${conv.id})">Send</button>
+      </div>
+    </div>
+  `;
+}
+
+function approveDraft(id) {
+  const conv = conversations.find(c => c.id === id);
+  if (document.getElementById("draft-edit").style.display === "block") {
+    conv.messages.push({ from: "shop", text: document.getElementById("draft-edit").value, time: "Just now" });
+  } else {
+    conv.messages.push({ from: "shop", text: conv.aiDraft, time: "Just now" });
+  }
+  conv.aiDraft = null;
+  conv.status = "resolved";
+  conv.tag = "resolved";
+  showToast("Reply sent successfully!");
+  selectConversation(id);
+  updateCounts();
+  renderConversationList();
+}
+
+function toggleEdit() {
+  const display = document.getElementById("draft-display");
+  const textarea = document.getElementById("draft-edit");
+  const btn = document.getElementById("edit-btn");
+  if (textarea.style.display === "none") {
+    textarea.style.display = "block";
+    display.style.display = "none";
+    btn.textContent = "✓ Done Editing";
+    btn.classList.add("btn-primary");
+    btn.classList.remove("btn-outline");
+  } else {
+    textarea.style.display = "none";
+    display.style.display = "block";
+    btn.textContent = "✎ Edit Draft";
+    btn.classList.remove("btn-primary");
+    btn.classList.add("btn-outline");
+    display.innerHTML = textarea.value.replace(/\n/g, '<br>');
+  }
+}
+
+function sendManualReply(id) {
+  const textarea = document.getElementById("manual-reply");
+  const text = textarea.value.trim();
+  if (!text) return;
+  const conv = conversations.find(c => c.id === id);
+  conv.messages.push({ from: "shop", text: text, time: "Just now" });
+  if (conv.status === "attention") {
+    conv.status = "resolved";
+    conv.tag = "resolved";
+  }
+  showToast("Reply sent!");
+  selectConversation(id);
+  updateCounts();
+  renderConversationList();
+}
+
+function resolveConversation(id) {
+  const conv = conversations.find(c => c.id === id);
+  conv.status = "resolved";
+  conv.tag = "resolved";
+  conv.aiDraft = null;
+  showToast("Conversation resolved");
+  selectConversation(id);
+  updateCounts();
+  renderConversationList();
+}
+
+function reopenConversation(id) {
+  const conv = conversations.find(c => c.id === id);
+  conv.status = "attention";
+  conv.tag = "attention";
+  showToast("Conversation reopened");
+  selectConversation(id);
+  updateCounts();
+  renderConversationList();
+}
+
+function spamConversation(id) {
+  const conv = conversations.find(c => c.id === id);
+  conv.status = "spam";
+  conv.tag = "spam";
+  conv.aiDraft = null;
+  showToast("Marked as spam");
+  selectConversation(id);
+  updateCounts();
+  renderConversationList();
+}
+
+function showToast(text) {
+  const toast = document.getElementById("toast");
+  document.getElementById("toast-text").textContent = text;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2500);
+}
+
+// Filters
+document.getElementById("filters").addEventListener("click", e => {
+  if (!e.target.classList.contains("filter-btn")) return;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  e.target.classList.add("active");
+  activeFilter = e.target.dataset.filter;
+  renderConversationList();
+});
+
+// Init
+updateCounts();
+renderConversationList();
+</script>
+</body>
+</html>
