@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="da">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Critter Inbox</title>
+<title>Gekkoriget · Indbakke</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1c1e21; height: 100vh; height: 100dvh; overflow: hidden; }
+  :root { --alert-red: #d32f2f; --ok-green: #2e7d32; }
 
   /* Layout */
   .app { display: flex; height: 100vh; height: 100dvh; }
@@ -18,8 +19,8 @@
   .sidebar-header { padding: 16px 20px 14px; border-bottom: 1px solid #dddfe2; }
   .brand { font-size: 13px; font-weight: 600; color: #65676b; display: flex; align-items: center; gap: 6px; }
   .hero { margin-top: 8px; display: flex; align-items: baseline; gap: 10px; }
-  .hero strong { font-size: 40px; line-height: 1; font-weight: 800; color: #d32f2f; }
-  .hero strong.zero { color: #2e7d32; }
+  .hero strong { font-size: 40px; line-height: 1; font-weight: 800; color: var(--alert-red); }
+  .hero strong.zero { color: var(--ok-green); }
   .hero span { font-size: 16px; font-weight: 600; color: #1c1e21; }
   .hero-sub { font-size: 12px; color: #65676b; margin-top: 6px; }
 
@@ -59,7 +60,7 @@
   .conv-meta { font-size: 12px; color: #65676b; white-space: nowrap; }
   .conv-preview { font-size: 13px; color: #65676b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
   .conv-preview.draft { color: #2e7d32; }
-  .conv-preview.draft::before { content: "Reply: "; font-weight: 600; }
+  .conv-preview.draft::before { content: "Svar: "; font-weight: 600; }
   .conv-preview.flag { color: #d32f2f; font-weight: 600; }
   .conv-actions { display: flex; gap: 6px; margin-top: 8px; }
   .unread-dot { width: 8px; height: 8px; border-radius: 50%; background: #0084ff; position: absolute; top: 18px; left: 6px; }
@@ -123,7 +124,6 @@
   ::-webkit-scrollbar-thumb:hover { background: #999; }
 
   /* Badge */
-  .badge { display: inline-flex; align-items: center; justify-content: center; background: #ff5252; color: #fff; font-size: 11px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 10px; padding: 0 6px; }
 
 
   /* Top bar + views */
@@ -142,14 +142,15 @@
   .overview { overflow-y: auto; padding: 20px; }
   .ov-inner { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
   .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-  .tile { background: #fff; border: 1px solid #dddfe2; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px; text-align: left; font-family: inherit; cursor: pointer; }
+  .tile { position: relative; background: #fff; border: 1px solid #dddfe2; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px; text-align: left; font-family: inherit; cursor: pointer; }
   .tile:hover { border-color: #b0b3b8; }
+  .tile:not(.static)::after { content: "→"; position: absolute; top: 14px; right: 14px; font-size: 14px; font-weight: 700; color: #0084ff; }
   .tile.static { cursor: default; }
   .tile.static:hover { border-color: #dddfe2; }
   .tile .num { font-size: 36px; font-weight: 800; line-height: 1; color: #1c1e21; }
-  .tile.attention .num { color: #d32f2f; }
-  .tile.attention.zero .num { color: #2e7d32; }
-  .tile.drafted .num { color: #2e7d32; }
+  .tile.attention .num { color: var(--alert-red); }
+  .tile.attention.zero .num { color: var(--ok-green); }
+  .tile.drafted .num { color: var(--ok-green); }
   .tile .label { font-size: 14px; font-weight: 600; color: #1c1e21; }
   .tile .sub { font-size: 12px; color: #65676b; }
   .tile .btn { align-self: flex-start; margin-top: 4px; }
@@ -157,7 +158,6 @@
   .card h2 { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; }
   .card h2 a { font-size: 12px; font-weight: 600; color: #0084ff; cursor: pointer; }
   .card h2 .note { font-size: 11px; font-weight: 500; color: #65676b; }
-  .ov-list .conversation-item { padding-left: 17px; }
   .ov-empty { padding: 20px 0; color: #65676b; font-size: 14px; }
   .ov-empty strong { display: block; color: #1c1e21; font-size: 16px; margin-bottom: 2px; }
 
@@ -183,6 +183,7 @@
     .app { display: block; }
     .topbar { padding: 0 12px; }
     .topbar .brand span { display: none; }
+    .nav button { padding: 10px 14px; }
     .overview { padding: 12px; }
     .tiles { grid-template-columns: repeat(2, 1fr); }
     .tile { padding: 12px; }
@@ -214,10 +215,10 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><span>🦎</span> Critter Inbox</div>
+  <div class="brand"><span>🦎</span> Gekkoriget</div>
   <nav class="nav" id="nav">
-    <button data-view="overview" class="active">Overview</button>
-    <button data-view="inbox">Inbox <span class="pill" id="nav-pill" hidden></span></button>
+    <button data-view="overview" class="active">Overblik</button>
+    <button data-view="inbox">Indbakke <span class="pill" id="nav-pill" hidden></span></button>
   </nav>
 </header>
 
@@ -226,35 +227,35 @@
     <div class="tiles">
       <button class="tile attention" onclick="goInbox('attention')">
         <div class="num" id="ov-attention">0</div>
-        <div class="label">Need you</div>
+        <div class="label">Kræver dig</div>
         <div class="sub" id="ov-attention-sub"></div>
       </button>
       <button class="tile drafted" onclick="goInbox('drafted')">
         <div class="num" id="ov-drafted">0</div>
-        <div class="label">Ready to send</div>
-        <div class="sub">Replies the AI wrote. Look them over or send them all.</div>
+        <div class="label">Klar til at sende</div>
+        <div class="sub">Svar som AI har skrevet. Tjek dem, eller send dem alle.</div>
       </button>
       <div class="tile static">
         <div class="num" id="ov-today">0</div>
-        <div class="label">Sent today</div>
-        <div class="split"><span><b id="ov-today-ai">0</b> by AI</span><span><b id="ov-today-you">0</b> by you</span></div>
+        <div class="label">Sendt i dag</div>
+        <div class="split"><span><b id="ov-today-ai">0</b> af AI</span><span><b id="ov-today-you">0</b> af dig</span></div>
       </div>
       <div class="tile static">
         <div class="num" id="ov-open">0</div>
-        <div class="label">Open conversations</div>
+        <div class="label">Åbne samtaler</div>
         <div class="split" id="ov-sources"></div>
       </div>
     </div>
 
     <div class="card">
-      <h2><span>Needs you now</span><a onclick="goInbox('attention')">Open inbox</a></h2>
+      <h2><span>Kræver dig nu</span><a onclick="goInbox('attention')">Åbn indbakke</a></h2>
       <div class="ov-list" id="ov-list"></div>
     </div>
 
     <div class="card">
-      <h2><span>This week</span><span class="note">Replies sent per day</span></h2>
+      <h2><span>Denne uge</span><span class="note">Svar sendt pr. dag</span></h2>
       <div class="chart" id="chart"></div>
-      <div class="legend"><span class="ai">Sent by AI, approved by you</span><span class="you">Written by you</span></div>
+      <div class="legend"><span class="ai">Sendt af AI, godkendt af dig</span><span class="you">Skrevet af dig</span></div>
     </div>
   </div>
 </section>
@@ -264,14 +265,14 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="hero"><strong id="hero-count">0</strong><span id="hero-label">need you</span></div>
+      <div class="hero"><strong id="hero-count">0</strong><span id="hero-label">kræver dig</span></div>
       <div class="hero-sub" id="hero-sub"></div>
     </div>
     <div class="filters" id="filters">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="attention">Needs you <span class="count" id="count-attention"></span></button>
-      <button class="filter-btn" data-filter="drafted">Ready to send <span class="count" id="count-drafted"></span></button>
-      <button class="filter-btn" data-filter="done">Done <span class="count" id="count-done"></span></button>
+      <button class="filter-btn active" data-filter="all">Alle</button>
+      <button class="filter-btn" data-filter="attention">Kræver dig <span class="count" id="count-attention"></span></button>
+      <button class="filter-btn" data-filter="drafted">Klar til at sende <span class="count" id="count-drafted"></span></button>
+      <button class="filter-btn" data-filter="done">Afsluttet <span class="count" id="count-done"></span></button>
     </div>
     <div class="conversation-list" id="conversation-list"></div>
   </div>
@@ -280,7 +281,7 @@
   <div class="main" id="main-panel">
     <div class="main-empty" id="empty-state">
       <div class="icon">💬</div>
-      <div>Select a conversation to get started</div>
+      <div>Vælg en samtale for at komme i gang</div>
     </div>
   </div>
 </div>
@@ -288,101 +289,101 @@
 </section>
 
 <!-- Toast -->
-<div class="toast" id="toast"><span class="check">✓</span> <span id="toast-text">Reply sent!</span></div>
+<div class="toast" id="toast"><span class="check">✓</span> <span id="toast-text">Svar sendt</span></div>
 
 <script>
+// Sample data. Names, messages and prices are invented; Gekkoriget's real prices are not published. See GEKKORIGET.md.
 const conversations = [
   {
-    id: 1, name: "Sarah M.", avatar: "S", color: "orange", minutesAgo: 2, source: "messenger",
+    id: 1, name: "Mette H.", avatar: "M", color: "orange", minutesAgo: 4, source: "messenger",
     status: "attention", unread: true,
     messages: [
-      { from: "customer", text: "Hi! My bearded dragon hasn't been eating for 3 days now. He usually eats every day. Is something wrong?", time: "10:32 AM" },
-      { from: "customer", text: "He's also been sleeping a lot more than usual", time: "10:32 AM" },
+      { from: "customer", text: "Hej! Min kronegekko har ikke spist i snart en uge. Er det normalt, eller skal jeg være bekymret?", time: "09.14" },
+      { from: "customer", text: "Hun sidder også bare helt stille i det fugtige hjørne af terrariet hele tiden.", time: "09.15" },
     ],
     aiDraft: null, holdReason: "health"
   },
   {
-    id: 2, name: "Jake T.", avatar: "J", color: "green", minutesAgo: 8, source: "messenger",
+    id: 2, name: "Jonas P.", avatar: "J", color: "green", minutesAgo: 9, source: "messenger",
     status: "drafted", unread: false,
     messages: [
-      { from: "customer", text: "Hey, do you guys have any ball pythons available right now?", time: "9:15 AM" },
-      { from: "customer", text: "Looking for a male, any morph is fine", time: "9:15 AM" },
+      { from: "customer", text: "Hej Aske! Har du stadig chahouaer til salg fra sidste kuld? Leder efter en han.", time: "08.51" },
     ],
-    aiDraft: "Hi Jake! Thanks for reaching out 🐍 We currently have 3 male ball pythons available — a normal, a pastel, and a banana morph. Prices range from $75 to $200. Would you like photos of any of them?",
-    confidence: 92
+    aiDraft: "Hej Jonas! Ja, der er stadig et par tilbage fra kuldet 🦎 Aske kigger på hanner/hunner og vender tilbage med billeder og pris i løbet af dagen.",
+    confidence: 87
   },
   {
-    id: 3, name: "Lisa R.", avatar: "L", color: "purple", minutesAgo: 15, source: "messenger",
+    id: 3, name: "Camilla S.", avatar: "C", color: "purple", minutesAgo: 17, source: "messenger",
     status: "drafted", unread: false,
     messages: [
-      { from: "customer", text: "How much for a leopard gecko setup? Like a full tank with everything", time: "8:45 AM" },
+      { from: "customer", text: "Hvad skal der til for et bioaktivt terrarium til en leachianus? Og sælger I bænkebidere til det?", time: "08.20" },
     ],
-    aiDraft: "Hi Lisa! Great choice — leopard geckos are wonderful pets 🦎 For a complete setup we recommend:\n\n• 20-gallon tank — $45\n• Heat mat + thermostat — $35\n• Hides & decor — $25\n• Substrate — $15\n\nTotal for setup: ~$120\nLeopard gecko: $40-80 depending on morph\n\nWe have a starter bundle deal for $160 that includes everything. Want the details?",
-    confidence: 88
+    aiDraft: "Hej Camilla! Til en leachianus vil vi anbefale et terrarium på mindst 45x45x60 cm med god højde, fugtig bund og masser af klatremuligheder. Vi har bænkebidere til bioaktive opsætninger — en bakke koster 75 kr. Sig til, hvor mange du skal bruge, så pakker Aske dem klar.",
+    confidence: 80
   },
   {
-    id: 4, name: "Mike D.", avatar: "M", color: "teal", minutesAgo: 32, source: "messenger",
+    id: 4, name: "Thomas K.", avatar: "T", color: "teal", minutesAgo: 33, source: "messenger",
     status: "drafted", unread: false,
     messages: [
-      { from: "customer", text: "What are your opening hours on Saturday?", time: "8:01 AM" },
+      { from: "customer", text: "Har I åbent i weekenden, eller er det kun til messer man kan møde jer?", time: "07.58" },
     ],
-    aiDraft: "Hey Mike! We're open Saturday 10 AM – 6 PM. Hope to see you then! 🦜",
-    confidence: 97
+    aiDraft: "Hej Thomas! Vi har ikke en fast butik, men skriv endelig, så finder vi en tid til afhentning, der passer 🦎",
+    confidence: 93
   },
   {
-    id: 5, name: "Emma W.", avatar: "E", color: "orange", minutesAgo: 60, source: "messenger",
+    id: 5, name: "Sofie L.", avatar: "S", color: "orange", minutesAgo: 61, source: "messenger",
     status: "attention", unread: true,
     messages: [
-      { from: "customer", text: "I bought a chameleon from you last week and it looks like it's having trouble shedding", time: "7:30 AM" },
-      { from: "customer", text: "There's skin stuck on its toes and eyes. Is this an emergency?", time: "7:31 AM" },
+      { from: "customer", text: "Min daggekko har fastsiddende hud om tæerne efter skiftning. Er det farligt, eller går det væk af sig selv?", time: "07.02" },
+      { from: "customer", text: "Hun prøver selv at gnave i det, men det ser ikke ud til at rykke sig.", time: "07.03" },
     ],
     aiDraft: null, holdReason: "health"
   },
   {
-    id: 6, name: "Chris P.", avatar: "C", color: "green", minutesAgo: 90, source: "messenger",
+    id: 6, name: "Nikolaj B.", avatar: "N", color: "green", minutesAgo: 92, source: "messenger",
     status: "drafted", unread: false,
     messages: [
-      { from: "customer", text: "Can I reserve a crested gecko? The gargoyle one in the window", time: "6:45 AM" },
+      { from: "customer", text: "Kan I reservere en af gargoyle-ungerne fra det nye kuld til mig? Den med de orange striber på billedet.", time: "06.32" },
     ],
-    aiDraft: "Hi Chris! Sure thing, we can hold the gargoyle gecko for you for 48 hours with a $20 deposit. Just stop by when you're ready! His price is $120. Want me to note your name on him?",
-    confidence: 90
+    aiDraft: "Hej Nikolaj! Vi kan sagtens reservere den til dig. Aske bekræfter pris og hvor længe vi kan holde den af.",
+    confidence: 85
   },
   {
-    id: 7, name: "BotSpam420", avatar: "B", color: "red", minutesAgo: 120, source: "messenger",
+    id: 7, name: "GevinstKlubben99", avatar: "G", color: "red", minutesAgo: 125, source: "messenger",
     status: "spam", unread: false,
     messages: [
-      { from: "customer", text: "🔥🔥🔥 Buy followers cheap!! Visit www.totallynotascam.biz 🔥🔥🔥", time: "5:12 AM" },
+      { from: "customer", text: "🔥🔥🔥 Vind en gratis iPhone nu!! Klik her: www.helt-sikkert-ikke-svindel.biz 🔥🔥🔥", time: "05.10" },
     ],
     aiDraft: null
   },
   {
-    id: 8, name: "Amy K.", avatar: "A", color: "purple", minutesAgo: 180, source: "messenger",
+    id: 8, name: "Freja A.", avatar: "F", color: "purple", minutesAgo: 200, source: "messenger",
     status: "resolved", unread: false,
     messages: [
-      { from: "customer", text: "Do you guys sell frozen mice for snakes?", time: "4:00 AM" },
-      { from: "shop", text: "Hi Amy! Yes we do! We have small ($2), medium ($3), and large ($4) frozen mice. We sell them individually or in packs of 10 with a 10% discount.", time: "4:15 AM" },
-      { from: "customer", text: "Perfect! I'll swing by tomorrow for a pack of 10 medium ones", time: "4:20 AM" },
-      { from: "shop", text: "Sounds great, we'll have them ready for you! 🐭", time: "4:22 AM" },
+      { from: "customer", text: "Sælger I stadig Phelsuma-daggekkoer? Så et opslag fra messen i Aars.", time: "03.40" },
+      { from: "shop", text: "Hej Freja! Ja, vi har et par styk tilbage. Skriv gerne hvilken art du kigger efter, så finder Aske dem frem 🦎", time: "03.52" },
+      { from: "customer", text: "Fedt, jeg er interesseret i klassisk grandis. Hvordan foregår afhentning?", time: "03.58" },
+      { from: "shop", text: "Vi aftaler tid og sted, når Aske alligevel er i nærheden — ellers sender vi med GLS. Skriver til dig, når vi har en dato.", time: "04.05" },
     ],
     aiDraft: null
   },
   {
-    id: 9, name: "David L.", avatar: "D", color: "teal", minutesAgo: 240, source: "messenger",
+    id: 9, name: "Anders V.", avatar: "A", color: "teal", minutesAgo: 260, source: "messenger",
     status: "attention", unread: true,
     messages: [
-      { from: "customer", text: "I bought a corn snake from you 2 months ago and it hasn't shed once. Is that normal?", time: "3:00 AM" },
-      { from: "customer", text: "Also the substrate you recommended seems too dry, should I mist more?", time: "3:01 AM" },
+      { from: "customer", text: "Min kronegekkos hale virker helt slap og har mistet farve de sidste par dage. Kan det være mangel på kalk?", time: "01.10" },
+      { from: "customer", text: "Han spiser stadig, men bevæger sig meget stille.", time: "01.11" },
     ],
     aiDraft: null, holdReason: "health"
   },
   {
-    id: 10, name: "Rachel F.", avatar: "R", color: "orange", minutesAgo: 300, source: "messenger",
+    id: 10, name: "Ida M.", avatar: "I", color: "orange", minutesAgo: 310, source: "instagram",
     status: "drafted", unread: false,
     messages: [
-      { from: "customer", text: "What's the best beginner reptile? I've never had one before but I'm really interested", time: "2:00 AM" },
+      { from: "customer", text: "Hej! Fulgte jer fra Reptilmessen i Rødovre — sælger I stadig kronegekkoer, og hvad koster en unge cirka?", time: "00.05" },
     ],
-    aiDraft: "Hey Rachel! Great question 🦎 For first-time reptile owners we usually recommend:\n\n1. **Leopard Gecko** — Super easy care, docile, great eaters. ~$40-80\n2. **Crested Gecko** — No special heating needed, fun to watch. ~$50-100\n3. **Corn Snake** — Hardy and gentle, very forgiving of beginner mistakes. ~$50-100\n\nWe love helping beginners get started! Want to come in and meet some of these guys in person?",
-    confidence: 95
+    aiDraft: "Hej Ida! Ja, vi har kronegekkoer 🦎 Aske vender tilbage med pris og hvilke unger der er tilbage fra kuldet.",
+    confidence: 82
   },
 ];
 
@@ -395,12 +396,12 @@ function multiline(str) { return esc(str).replace(/\n/g, "<br>"); }
 
 // Sample history for the week chart. Replace with real counts when a channel is wired.
 const WEEK = [
-  { day: "Wed", ai: 14, you: 5 },
-  { day: "Thu", ai: 11, you: 4 },
-  { day: "Fri", ai: 18, you: 6 },
-  { day: "Sat", ai: 22, you: 3 },
-  { day: "Sun", ai: 9, you: 2 },
-  { day: "Mon", ai: 16, you: 4 },
+  { day: "Ons", ai: 14, you: 5 },
+  { day: "Tor", ai: 11, you: 4 },
+  { day: "Fre", ai: 18, you: 6 },
+  { day: "Lør", ai: 22, you: 3 },
+  { day: "Søn", ai: 9, you: 2 },
+  { day: "Man", ai: 16, you: 4 },
 ];
 // Seeded from the sample: replies the shop already sent today.
 const sentToday = { ai: 0, you: conversations.reduce((n, c) => n + c.messages.filter(m => m.from === "shop").length, 0) };
@@ -411,19 +412,19 @@ let selectedConvId = null;
 let confirmBulk = false;
 
 const GROUPS = [
-  { key: "attention", label: "Needs you", statuses: ["attention"] },
-  { key: "drafted", label: "Ready to send", statuses: ["drafted"] },
-  { key: "done", label: "Done", statuses: ["resolved", "spam"] },
+  { key: "attention", label: "Kræver dig", statuses: ["attention"] },
+  { key: "drafted", label: "Klar til at sende", statuses: ["drafted"] },
+  { key: "done", label: "Afsluttet", statuses: ["resolved", "spam"] },
 ];
 
 function ago(mins) {
   if (mins < 60) return `${mins}m`;
-  if (mins < 1440) return `${Math.round(mins / 60)}h`;
+  if (mins < 1440) return `${Math.round(mins / 60)}t`;
   return `${Math.round(mins / 1440)}d`;
 }
-const SOURCE_LABEL = { messenger: "Messenger", instagram: "Instagram", email: "Email" };
+const SOURCE_LABEL = { messenger: "Messenger", instagram: "Instagram", email: "E-mail" };
 function statusLabel(status) {
-  return { attention: "Needs you", drafted: "Ready to send", resolved: "Done", spam: "Spam" }[status];
+  return { attention: "Kræver dig", drafted: "Klar til at sende", resolved: "Afsluttet", spam: "Spam" }[status];
 }
 function byRecency(a, b) { return a.minutesAgo - b.minutesAgo; }
 function inGroup(c, g) { return g.statuses.includes(c.status); }
@@ -436,9 +437,9 @@ function updateCounts() {
   const hero = document.getElementById("hero-count");
   hero.textContent = attention;
   hero.classList.toggle("zero", attention === 0);
-  document.getElementById("hero-label").textContent = attention === 1 ? "needs you" : "need you";
+  document.getElementById("hero-label").textContent = "kræver dig";
   document.getElementById("hero-sub").textContent =
-    ready ? `${ready} ${ready === 1 ? "reply" : "replies"} ready to send. One tap each, or send them all.` : "Nothing waiting to be sent.";
+    ready ? `${ready} ${ready === 1 ? "svar" : "svar"} klar til at sende. Ét tryk hver, eller send dem alle.` : "Intet venter på at blive sendt.";
   document.getElementById("count-attention").textContent = attention;
   document.getElementById("count-drafted").textContent = ready;
   document.getElementById("count-done").textContent = done;
@@ -451,12 +452,12 @@ function renderItem(c) {
   const last = c.messages[c.messages.length - 1];
   let preview;
   if (c.status === "drafted" && c.aiDraft) preview = `<div class="conv-preview draft">${esc(c.aiDraft)}</div>`;
-  else if (c.status === "attention" && c.holdReason === "health") preview = `<div class="conv-preview flag">Possible health issue</div>`;
+  else if (c.status === "attention" && c.holdReason === "health") preview = `<div class="conv-preview flag">Muligt sundhedsproblem</div>`;
   else preview = "";
   const actions = c.status === "drafted" && c.aiDraft
     ? `<div class="conv-actions">
          <button class="btn btn-success" onclick="event.stopPropagation(); sendDraft(${c.id}); afterSend()">Send</button>
-         <button class="btn btn-outline" onclick="event.stopPropagation(); selectConversation(${c.id})">Open</button>
+         <button class="btn btn-outline" onclick="event.stopPropagation(); selectConversation(${c.id})">Åbn</button>
        </div>`
     : "";
   return `
@@ -471,7 +472,7 @@ function renderItem(c) {
           <span class="conv-name">${esc(c.name)}</span>
           <span class="conv-meta">${esc(SOURCE_LABEL[c.source] || c.source)} · ${ago(c.minutesAgo)}</span>
         </div>
-        <div class="conv-preview">${esc(last.from === "shop" ? "You: " + last.text : last.text)}</div>
+        <div class="conv-preview">${esc(last.from === "shop" ? "Dig: " + last.text : last.text)}</div>
         ${preview}
         ${actions}
       </div>
@@ -483,16 +484,16 @@ function renderGroup(g, items) {
   if (g.key === "drafted" && items.length > 1) {
     head += confirmBulk
       ? `<span class="bulk">
-           <button class="btn btn-success" onclick="sendAllDrafts()">Send ${items.length} now</button>
-           <button class="btn btn-outline" onclick="confirmBulk = false; renderConversationList()">Cancel</button>
+           <button class="btn btn-success" onclick="sendAllDrafts()">Send ${items.length} nu</button>
+           <button class="btn btn-outline" onclick="confirmBulk = false; renderConversationList()">Annullér</button>
          </span>`
-      : `<button class="btn btn-outline" onclick="confirmBulk = true; renderConversationList()">Send all</button>`;
+      : `<button class="btn btn-outline" onclick="confirmBulk = true; renderConversationList()">Send alle</button>`;
   }
   let body;
   if (items.length) body = items.map(renderItem).join("");
-  else if (g.key === "attention") body = `<div class="group-empty"><strong>Nothing needs you.</strong>Go look after the animals.</div>`;
-  else if (g.key === "drafted") body = `<div class="group-empty">No replies waiting.</div>`;
-  else body = `<div class="group-empty">Nothing done yet.</div>`;
+  else if (g.key === "attention") body = `<div class="group-empty"><strong>Ingenting kræver dig.</strong>Gå ud og pas dyrene.</div>`;
+  else if (g.key === "drafted") body = `<div class="group-empty">Ingen svar venter.</div>`;
+  else body = `<div class="group-empty">Intet afsluttet endnu.</div>`;
   return `<div class="group-head ${g.key}">${head}</div>${body}`;
 }
 
@@ -510,14 +511,14 @@ function sendDraft(id, text) {
   const body = (text ?? conv.aiDraft ?? "").trim();
   if (!body) return;
   if (body === (conv.aiDraft || "").trim()) sentToday.ai++; else sentToday.you++;
-  conv.messages.push({ from: "shop", text: body, time: "Just now" });
+  conv.messages.push({ from: "shop", text: body, time: "Lige nu" });
   conv.aiDraft = null;
   conv.status = "resolved";
   conv.unread = false;
 }
 
 function afterSend() {
-  showToast("Reply sent");
+  showToast("Svar sendt");
   if (selectedConvId) selectConversation(selectedConvId);
   updateCounts();
   renderConversationList();
@@ -527,7 +528,7 @@ function sendAllDrafts() {
   const ready = drafted();
   ready.forEach(c => sendDraft(c.id));
   confirmBulk = false;
-  showToast(`${ready.length} replies sent`);
+  showToast(`${ready.length} svar sendt`);
   if (selectedConvId) selectConversation(selectedConvId);
   updateCounts();
   renderConversationList();
@@ -565,27 +566,27 @@ function renderChatPanel(conv) {
     aiDraftHTML = `
       <div class="ai-draft-box">
         <div class="ai-draft-header">
-          <div class="ai-draft-label"><span class="sparkle">✨</span> AI Suggested Reply</div>
-          <span class="ai-confidence">Confidence: ${conv.confidence}%</span>
+          <div class="ai-draft-label"><span class="sparkle">✨</span> AI-forslag</div>
+          <span class="ai-confidence">Sikkerhed: ${conv.confidence}%</span>
         </div>
         <div class="ai-draft-text" id="draft-display">${multiline(conv.aiDraft)}</div>
         <textarea class="ai-draft-textarea" id="draft-edit">${esc(conv.aiDraft)}</textarea>
         <div class="ai-draft-actions">
-          <button class="btn btn-success" onclick="approveDraft(${conv.id})">✓ Approve & Send</button>
-          <button class="btn btn-outline" id="edit-btn" onclick="toggleEdit()">✎ Edit Reply</button>
-          <button class="btn btn-outline" onclick="resolveConversation(${conv.id})">Mark Done</button>
+          <button class="btn btn-success" onclick="approveDraft(${conv.id})">✓ Godkend og send</button>
+          <button class="btn btn-outline" id="edit-btn" onclick="toggleEdit()">✎ Rediger svar</button>
+          <button class="btn btn-outline" onclick="resolveConversation(${conv.id})">Afslut</button>
           <button class="btn btn-danger" onclick="spamConversation(${conv.id})">🚫 Spam</button>
         </div>
       </div>
     `;
   } else if (conv.status === "attention") {
     const note = conv.holdReason === "health"
-      ? "This looks like a health issue, so no reply was drafted. Reply yourself below."
-      : "No reply was drafted for this one. Reply yourself below.";
+      ? "Det her ligner et sundhedsproblem, så der er ikke skrevet noget svarforslag. Svar selv nedenfor."
+      : "Der er ikke skrevet noget svarforslag til den her. Svar selv nedenfor.";
     aiDraftHTML = `
       <div class="ai-draft-box" style="border-top-color: #ff5252;">
         <div class="ai-draft-header">
-          <div class="ai-draft-label" style="color: #d32f2f;"><span class="sparkle">⚠️</span> Needs your reply</div>
+          <div class="ai-draft-label" style="color: #d32f2f;"><span class="sparkle">⚠️</span> Kræver dit svar</div>
         </div>
         <div style="font-size: 13px; color: #65676b;">${note}</div>
       </div>
@@ -605,17 +606,17 @@ function renderChatPanel(conv) {
         </div>
         <div class="chat-header-actions">
           ${conv.status === 'resolved' || conv.status === 'spam'
-            ? `<button class="btn btn-outline" onclick="reopenConversation(${conv.id})">↩ Reopen</button>`
-            : `<button class="btn btn-outline" onclick="resolveConversation(${conv.id})">✓ Done</button>`}
+            ? `<button class="btn btn-outline" onclick="reopenConversation(${conv.id})">↩ Genåbn</button>`
+            : `<button class="btn btn-outline" onclick="resolveConversation(${conv.id})">✓ Afslut</button>`}
         </div>
       </div>
       <div class="messages">
-        <div class="date-divider">Today</div>
+        <div class="date-divider">I dag</div>
         ${messagesHTML}
       </div>
       ${aiDraftHTML}
       <div class="chat-input">
-        <textarea placeholder="Type a reply..." rows="1" id="manual-reply"></textarea>
+        <textarea placeholder="Skriv et svar..." rows="1" id="manual-reply"></textarea>
         <button class="btn btn-primary" onclick="sendManualReply(${conv.id})">Send</button>
       </div>
     </div>
@@ -636,12 +637,12 @@ function toggleEdit() {
   const btn = document.getElementById("edit-btn");
   const editing = box.classList.toggle("editing");
   if (editing) {
-    btn.textContent = "✓ Done Editing";
+    btn.textContent = "✓ Færdig";
     btn.classList.add("btn-primary");
     btn.classList.remove("btn-outline");
     textarea.focus();
   } else {
-    btn.textContent = "✎ Edit Reply";
+    btn.textContent = "✎ Rediger svar";
     btn.classList.remove("btn-primary");
     btn.classList.add("btn-outline");
     conv.aiDraft = textarea.value;
@@ -655,11 +656,11 @@ function sendManualReply(id) {
   if (!text) return;
   const conv = conversations.find(c => c.id === id);
   sentToday.you++;
-  conv.messages.push({ from: "shop", text: text, time: "Just now" });
+  conv.messages.push({ from: "shop", text: text, time: "Lige nu" });
   if (conv.status === "attention") {
     conv.status = "resolved";
   }
-  showToast("Reply sent");
+  showToast("Svar sendt");
   selectConversation(id);
   updateCounts();
   renderConversationList();
@@ -669,7 +670,7 @@ function resolveConversation(id) {
   const conv = conversations.find(c => c.id === id);
   conv.status = "resolved";
   conv.aiDraft = null;
-  showToast("Marked as done");
+  showToast("Markeret som afsluttet");
   selectConversation(id);
   updateCounts();
   renderConversationList();
@@ -678,7 +679,7 @@ function resolveConversation(id) {
 function reopenConversation(id) {
   const conv = conversations.find(c => c.id === id);
   conv.status = "attention";
-  showToast("Conversation reopened");
+  showToast("Samtalen genåbnet");
   selectConversation(id);
   updateCounts();
   renderConversationList();
@@ -688,7 +689,7 @@ function spamConversation(id) {
   const conv = conversations.find(c => c.id === id);
   conv.status = "spam";
   conv.aiDraft = null;
-  showToast("Marked as spam");
+  showToast("Markeret som spam");
   selectConversation(id);
   updateCounts();
   renderConversationList();
@@ -710,8 +711,8 @@ function renderOverview() {
   tile.classList.toggle("zero", attention.length === 0);
   document.getElementById("ov-attention").textContent = attention.length;
   document.getElementById("ov-attention-sub").textContent = attention.length
-    ? (attention.some(c => c.holdReason === "health") ? "At least one looks like a health issue." : "Waiting for a reply from you.")
-    : "Nothing waiting for you.";
+    ? (attention.some(c => c.holdReason === "health") ? "Mindst én ligner et sundhedsproblem." : "Venter på svar fra dig.")
+    : "Intet venter på dig.";
   document.getElementById("ov-drafted").textContent = ready;
   document.getElementById("ov-today").textContent = sentToday.ai + sentToday.you;
   document.getElementById("ov-today-ai").textContent = sentToday.ai;
@@ -720,20 +721,20 @@ function renderOverview() {
   const bySource = {};
   open.forEach(c => { bySource[c.source] = (bySource[c.source] || 0) + 1; });
   document.getElementById("ov-sources").innerHTML = Object.entries(bySource)
-    .map(([k, n]) => `<span><b>${n}</b> ${esc(SOURCE_LABEL[k] || k)}</span>`).join("") || "<span>None open</span>";
+    .map(([k, n]) => `<span><b>${n}</b> ${esc(SOURCE_LABEL[k] || k)}</span>`).join("") || "<span>Ingen åbne</span>";
 
   document.getElementById("ov-list").innerHTML = attention.length
     ? attention.map(renderItem).join("")
-    : `<div class="ov-empty"><strong>Nothing needs you.</strong>Go look after the animals.</div>`;
+    : `<div class="ov-empty"><strong>Ingenting kræver dig.</strong>Gå ud og pas dyrene.</div>`;
 
   const pill = document.getElementById("nav-pill");
   pill.textContent = attention.length;
   pill.hidden = attention.length === 0;
 
-  const days = [...WEEK, { day: "Today", ai: sentToday.ai, you: sentToday.you, today: true }];
+  const days = [...WEEK, { day: "I dag", ai: sentToday.ai, you: sentToday.you, today: true }];
   const max = Math.max(...days.map(d => d.ai + d.you), 1);
   document.getElementById("chart").innerHTML = days.map(d => `
-    <div class="col ${d.today ? "today" : ""}" title="${esc(d.day)}: ${d.ai} by AI, ${d.you} by you">
+    <div class="col ${d.today ? "today" : ""}" title="${esc(d.day)}: ${d.ai} af AI, ${d.you} af dig">
       <div class="total">${d.ai + d.you || ""}</div>
       <div class="stack">
         <div class="seg ai" style="height:${(d.ai / max) * 100}%"></div>
