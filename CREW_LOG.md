@@ -2,6 +2,20 @@
 
 Newest first. One entry per session.
 
+## 2026-09-10 — Design pass; real shop taken out
+
+Mech rebuilt the stylesheet alone. Vera ran 19 checks at 1200px and 390px, 18 passed; the one miss (the clickable-tile cue Mech had removed) was put back as a quiet chevron and re-rendered.
+
+- Token layer: colour, ink scale, one accent, alert/ok with soft tints, five type sizes plus two display sizes, 4px spacing scale, two radii, two control heights. Every hardcoded value in the file goes through it.
+- Facebook blue is gone as the interface accent. The chart keeps its validated green/blue pair on its own token.
+- Underline tabs and a segmented nav instead of pill buttons. One button system, three variants, regular and compact. Draft and needs-you boxes share the card language with a colour stripe. Chrome emoji out; small inline SVGs where a button had no words.
+- The real shop and its owner are no longer named anywhere in the working tree. Research file deleted, brief and log reworded, sample replies say "vi". They remain in git history three commits back; rewriting that is the owner's call.
+- Contrast checked: all text meets 4.5:1 on its surface, accent-on-white button text passes.
+
+Not verified: iOS Safari on a real phone.
+
+Next: unchanged. Wire the first real channel.
+
 ## 2026-09-10 — Overview as the landing view; the product becomes the client's
 
 Ops built the overview. Doc researched the shop. Scribe rewrote data and copy in Danish. Mech reviewed layout. Vera ran 14 checks at 1200px and 390px, all passed, no console errors.
