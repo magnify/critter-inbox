@@ -2,6 +2,19 @@
 
 Newest first. One entry per session.
 
+## 2026-09-10 — Hierarchy pass
+
+The owner's real complaint was font and colour hierarchy, not the palette. Ops did the pass (Mech's model hit a rate limit mid-round; her three palette directions and the structural exploration are in scratch, not shipped). Vera ran 23 checks at 1200px and 390px; two real catches, both fixed: ink-3 was under 4.5:1 on the page ground, and the bold tags in the figure strip were a stray 700.
+
+- Type is three roles: 800 only on the big numbers, 600 for names, labels and buttons, 400 for everything else. One rule styles both group headings and card headings.
+- Red means needs-you and nothing else: the hero number, the health chip, the unread dot on those rows, the nav count. Row stripe, red group heading and red Spam button removed (Spam goes red on hover only).
+- Green only on the ready number and the draft stripe. Accent only on actions. Avatars neutral; the five identity colours are gone. Chart pair muted and re-validated.
+- Overview restructured: needs-you number at up to 128px top left, three figures as a strip under it, flagged list unboxed beside it, chart the one raised surface. Two columns at desktop, stacked on phones. Sidebar hero 64px.
+
+Not verified: iOS Safari on a real phone. Mech should look at this when her model is back; it's her ground.
+
+Next: unchanged. Wire the first real channel.
+
 ## 2026-09-10 — Design pass; real shop taken out
 
 Mech rebuilt the stylesheet alone. Vera ran 19 checks at 1200px and 390px, 18 passed; the one miss (the clickable-tile cue Mech had removed) was put back as a quiet chevron and re-rendered.
