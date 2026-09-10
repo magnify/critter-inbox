@@ -125,11 +125,71 @@
   /* Badge */
   .badge { display: inline-flex; align-items: center; justify-content: center; background: #ff5252; color: #fff; font-size: 11px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 10px; padding: 0 6px; }
 
+
+  /* Top bar + views */
+  .topbar { height: 52px; background: #fff; border-bottom: 1px solid #dddfe2; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; gap: 12px; }
+  .topbar .brand { font-size: 15px; }
+  .nav { display: flex; gap: 4px; background: #e4e6eb; padding: 3px; border-radius: 20px; }
+  .nav button { border: none; background: transparent; padding: 6px 14px; border-radius: 16px; font-size: 13px; font-weight: 600; color: #65676b; cursor: pointer; }
+  .nav button.active { background: #1c1e21; color: #fff; }
+  .nav button .pill { margin-left: 6px; background: #d32f2f; color: #fff; font-size: 11px; padding: 1px 7px; border-radius: 10px; }
+  .nav button.active .pill { background: #fff; color: #d32f2f; }
+  .view { height: calc(100vh - 52px); height: calc(100dvh - 52px); }
+  .view[hidden] { display: none; }
+  .app { height: 100%; }
+
+  /* Overview */
+  .overview { overflow-y: auto; padding: 20px; }
+  .ov-inner { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .tile { background: #fff; border: 1px solid #dddfe2; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px; text-align: left; font-family: inherit; cursor: pointer; }
+  .tile:hover { border-color: #b0b3b8; }
+  .tile.static { cursor: default; }
+  .tile.static:hover { border-color: #dddfe2; }
+  .tile .num { font-size: 36px; font-weight: 800; line-height: 1; color: #1c1e21; }
+  .tile.attention .num { color: #d32f2f; }
+  .tile.attention.zero .num { color: #2e7d32; }
+  .tile.drafted .num { color: #2e7d32; }
+  .tile .label { font-size: 14px; font-weight: 600; color: #1c1e21; }
+  .tile .sub { font-size: 12px; color: #65676b; }
+  .tile .btn { align-self: flex-start; margin-top: 4px; }
+  .card { background: #fff; border: 1px solid #dddfe2; border-radius: 12px; padding: 16px 20px; }
+  .card h2 { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; }
+  .card h2 a { font-size: 12px; font-weight: 600; color: #0084ff; cursor: pointer; }
+  .card h2 .note { font-size: 11px; font-weight: 500; color: #65676b; }
+  .ov-list .conversation-item { padding-left: 17px; }
+  .ov-empty { padding: 20px 0; color: #65676b; font-size: 14px; }
+  .ov-empty strong { display: block; color: #1c1e21; font-size: 16px; margin-bottom: 2px; }
+
+  /* Week chart */
+  .chart { display: flex; gap: 8px; align-items: flex-end; height: 140px; padding-top: 18px; }
+  .chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; position: relative; }
+  .chart .stack { width: 100%; max-width: 44px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; flex: 1; }
+  .chart .seg { width: 100%; border-radius: 2px; }
+  .chart .seg.ai { background: #2e7d32; border-radius: 4px 4px 2px 2px; }
+  .chart .seg.you { background: #0084ff; }
+  .chart .total { font-size: 11px; color: #65676b; font-weight: 600; }
+  .chart .day { font-size: 11px; color: #65676b; }
+  .chart .col.today .day { color: #1c1e21; font-weight: 700; }
+  .legend { display: flex; gap: 16px; margin-top: 10px; font-size: 12px; color: #65676b; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .legend .ai::before { background: #2e7d32; }
+  .legend .you::before { background: #0084ff; }
+  .split { display: flex; gap: 14px; font-size: 12px; color: #65676b; }
+  .split b { color: #1c1e21; }
+
   /* Mobile */
   @media (max-width: 768px) {
     .app { display: block; }
-    .sidebar { width: 100%; min-width: 0; height: 100vh; height: 100dvh; }
-    .main { display: none; height: 100vh; height: 100dvh; width: 100%; }
+    .topbar { padding: 0 12px; }
+    .topbar .brand span { display: none; }
+    .overview { padding: 12px; }
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .tile { padding: 12px; }
+    .tile .num { font-size: 30px; }
+    .chart { height: 120px; }
+    .sidebar { width: 100%; min-width: 0; height: 100%; }
+    .main { display: none; height: 100%; width: 100%; }
     body.conv-open .sidebar { display: none; }
     body.conv-open .main { display: flex; }
     .back-btn { display: inline-flex; }
@@ -153,11 +213,57 @@
 </style>
 </head>
 <body>
+<header class="topbar">
+  <div class="brand"><span>🦎</span> Critter Inbox</div>
+  <nav class="nav" id="nav">
+    <button data-view="overview" class="active">Overview</button>
+    <button data-view="inbox">Inbox <span class="pill" id="nav-pill" hidden></span></button>
+  </nav>
+</header>
+
+<section class="view overview" id="view-overview">
+  <div class="ov-inner">
+    <div class="tiles">
+      <button class="tile attention" onclick="goInbox('attention')">
+        <div class="num" id="ov-attention">0</div>
+        <div class="label">Need you</div>
+        <div class="sub" id="ov-attention-sub"></div>
+      </button>
+      <button class="tile drafted" onclick="goInbox('drafted')">
+        <div class="num" id="ov-drafted">0</div>
+        <div class="label">Ready to send</div>
+        <div class="sub">Replies the AI wrote. Look them over or send them all.</div>
+      </button>
+      <div class="tile static">
+        <div class="num" id="ov-today">0</div>
+        <div class="label">Sent today</div>
+        <div class="split"><span><b id="ov-today-ai">0</b> by AI</span><span><b id="ov-today-you">0</b> by you</span></div>
+      </div>
+      <div class="tile static">
+        <div class="num" id="ov-open">0</div>
+        <div class="label">Open conversations</div>
+        <div class="split" id="ov-sources"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span>Needs you now</span><a onclick="goInbox('attention')">Open inbox</a></h2>
+      <div class="ov-list" id="ov-list"></div>
+    </div>
+
+    <div class="card">
+      <h2><span>This week</span><span class="note">Replies sent per day</span></h2>
+      <div class="chart" id="chart"></div>
+      <div class="legend"><span class="ai">Sent by AI, approved by you</span><span class="you">Written by you</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="view-inbox" hidden>
 <div class="app">
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="brand"><span>🦎</span> Critter Inbox</div>
       <div class="hero"><strong id="hero-count">0</strong><span id="hero-label">need you</span></div>
       <div class="hero-sub" id="hero-sub"></div>
     </div>
@@ -178,6 +284,8 @@
     </div>
   </div>
 </div>
+
+</section>
 
 <!-- Toast -->
 <div class="toast" id="toast"><span class="check">✓</span> <span id="toast-text">Reply sent!</span></div>
@@ -285,6 +393,19 @@ function esc(str) {
 }
 function multiline(str) { return esc(str).replace(/\n/g, "<br>"); }
 
+// Sample history for the week chart. Replace with real counts when a channel is wired.
+const WEEK = [
+  { day: "Wed", ai: 14, you: 5 },
+  { day: "Thu", ai: 11, you: 4 },
+  { day: "Fri", ai: 18, you: 6 },
+  { day: "Sat", ai: 22, you: 3 },
+  { day: "Sun", ai: 9, you: 2 },
+  { day: "Mon", ai: 16, you: 4 },
+];
+// Seeded from the sample: replies the shop already sent today.
+const sentToday = { ai: 0, you: conversations.reduce((n, c) => n + c.messages.filter(m => m.from === "shop").length, 0) };
+
+let view = "overview";
 let activeFilter = "all";
 let selectedConvId = null;
 let confirmBulk = false;
@@ -321,6 +442,9 @@ function updateCounts() {
   document.getElementById("count-attention").textContent = attention;
   document.getElementById("count-drafted").textContent = ready;
   document.getElementById("count-done").textContent = done;
+  const pill = document.getElementById("nav-pill");
+  pill.textContent = attention; pill.hidden = attention === 0;
+  if (view === "overview") renderOverview();
 }
 
 function renderItem(c) {
@@ -385,6 +509,7 @@ function sendDraft(id, text) {
   const conv = conversations.find(c => c.id === id);
   const body = (text ?? conv.aiDraft ?? "").trim();
   if (!body) return;
+  if (body === (conv.aiDraft || "").trim()) sentToday.ai++; else sentToday.you++;
   conv.messages.push({ from: "shop", text: body, time: "Just now" });
   conv.aiDraft = null;
   conv.status = "resolved";
@@ -409,6 +534,7 @@ function sendAllDrafts() {
 }
 
 function selectConversation(id) {
+  if (view !== "inbox") showView("inbox");
   selectedConvId = id;
   const conv = conversations.find(c => c.id === id);
   conv.unread = false;
@@ -528,6 +654,7 @@ function sendManualReply(id) {
   const text = textarea.value.trim();
   if (!text) return;
   const conv = conversations.find(c => c.id === id);
+  sentToday.you++;
   conv.messages.push({ from: "shop", text: text, time: "Just now" });
   if (conv.status === "attention") {
     conv.status = "resolved";
@@ -574,19 +701,82 @@ function showToast(text) {
   setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
+// Overview
+function renderOverview() {
+  const attention = conversations.filter(c => c.status === "attention").sort(byRecency);
+  const ready = drafted().length;
+  const open = conversations.filter(c => c.status === "attention" || c.status === "drafted");
+  const tile = document.querySelector(".tile.attention");
+  tile.classList.toggle("zero", attention.length === 0);
+  document.getElementById("ov-attention").textContent = attention.length;
+  document.getElementById("ov-attention-sub").textContent = attention.length
+    ? (attention.some(c => c.holdReason === "health") ? "At least one looks like a health issue." : "Waiting for a reply from you.")
+    : "Nothing waiting for you.";
+  document.getElementById("ov-drafted").textContent = ready;
+  document.getElementById("ov-today").textContent = sentToday.ai + sentToday.you;
+  document.getElementById("ov-today-ai").textContent = sentToday.ai;
+  document.getElementById("ov-today-you").textContent = sentToday.you;
+  document.getElementById("ov-open").textContent = open.length;
+  const bySource = {};
+  open.forEach(c => { bySource[c.source] = (bySource[c.source] || 0) + 1; });
+  document.getElementById("ov-sources").innerHTML = Object.entries(bySource)
+    .map(([k, n]) => `<span><b>${n}</b> ${esc(SOURCE_LABEL[k] || k)}</span>`).join("") || "<span>None open</span>";
+
+  document.getElementById("ov-list").innerHTML = attention.length
+    ? attention.map(renderItem).join("")
+    : `<div class="ov-empty"><strong>Nothing needs you.</strong>Go look after the animals.</div>`;
+
+  const pill = document.getElementById("nav-pill");
+  pill.textContent = attention.length;
+  pill.hidden = attention.length === 0;
+
+  const days = [...WEEK, { day: "Today", ai: sentToday.ai, you: sentToday.you, today: true }];
+  const max = Math.max(...days.map(d => d.ai + d.you), 1);
+  document.getElementById("chart").innerHTML = days.map(d => `
+    <div class="col ${d.today ? "today" : ""}" title="${esc(d.day)}: ${d.ai} by AI, ${d.you} by you">
+      <div class="total">${d.ai + d.you || ""}</div>
+      <div class="stack">
+        <div class="seg ai" style="height:${(d.ai / max) * 100}%"></div>
+        <div class="seg you" style="height:${(d.you / max) * 100}%"></div>
+      </div>
+      <div class="day">${esc(d.day)}</div>
+    </div>`).join("");
+}
+
+function showView(name) {
+  view = name;
+  document.getElementById("view-overview").hidden = name !== "overview";
+  document.getElementById("view-inbox").hidden = name !== "inbox";
+  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
+  if (name === "overview") renderOverview();
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.toggle("active", b.dataset.filter === f));
+  renderConversationList();
+}
+
+function goInbox(filter) {
+  setFilter(filter || "all");
+  showView("inbox");
+}
+
+document.getElementById("nav").addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (btn) showView(btn.dataset.view);
+});
+
 // Filters
 document.getElementById("filters").addEventListener("click", e => {
   const btn = e.target.closest(".filter-btn");
-  if (!btn) return;
-  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  activeFilter = btn.dataset.filter;
-  renderConversationList();
+  if (btn) setFilter(btn.dataset.filter);
 });
 
 // Init
 updateCounts();
 renderConversationList();
+showView("overview");
 </script>
 </body>
 </html>
