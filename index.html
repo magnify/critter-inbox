@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gekkoriget · Indbakke</title>
+<title>Critter Inbox</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1c1e21; height: 100vh; height: 100dvh; overflow: hidden; }
@@ -215,7 +215,7 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><span>🦎</span> Gekkoriget</div>
+  <div class="brand"><span>🦎</span> Critter Inbox</div>
   <nav class="nav" id="nav">
     <button data-view="overview" class="active">Overblik</button>
     <button data-view="inbox">Indbakke <span class="pill" id="nav-pill" hidden></span></button>
@@ -292,7 +292,7 @@
 <div class="toast" id="toast"><span class="check">✓</span> <span id="toast-text">Svar sendt</span></div>
 
 <script>
-// Sample data. Names, messages and prices are invented; Gekkoriget's real prices are not published. See GEKKORIGET.md.
+// Sample data for a fictional Danish gecko shop. Every name, message and price is invented.
 const conversations = [
   {
     id: 1, name: "Mette H.", avatar: "M", color: "orange", minutesAgo: 4, source: "messenger",
@@ -307,9 +307,9 @@ const conversations = [
     id: 2, name: "Jonas P.", avatar: "J", color: "green", minutesAgo: 9, source: "messenger",
     status: "drafted", unread: false,
     messages: [
-      { from: "customer", text: "Hej Aske! Har du stadig chahouaer til salg fra sidste kuld? Leder efter en han.", time: "08.51" },
+      { from: "customer", text: "Hej! Har du stadig chahouaer til salg fra sidste kuld? Leder efter en han.", time: "08.51" },
     ],
-    aiDraft: "Hej Jonas! Ja, der er stadig et par tilbage fra kuldet 🦎 Aske kigger på hanner/hunner og vender tilbage med billeder og pris i løbet af dagen.",
+    aiDraft: "Hej Jonas! Ja, der er stadig et par tilbage fra kuldet 🦎 Vi kigger på hanner/hunner og vender tilbage med billeder og pris i løbet af dagen.",
     confidence: 87
   },
   {
@@ -318,7 +318,7 @@ const conversations = [
     messages: [
       { from: "customer", text: "Hvad skal der til for et bioaktivt terrarium til en leachianus? Og sælger I bænkebidere til det?", time: "08.20" },
     ],
-    aiDraft: "Hej Camilla! Til en leachianus vil vi anbefale et terrarium på mindst 45x45x60 cm med god højde, fugtig bund og masser af klatremuligheder. Vi har bænkebidere til bioaktive opsætninger — en bakke koster 75 kr. Sig til, hvor mange du skal bruge, så pakker Aske dem klar.",
+    aiDraft: "Hej Camilla! Til en leachianus vil vi anbefale et terrarium på mindst 45x45x60 cm med god højde, fugtig bund og masser af klatremuligheder. Vi har bænkebidere til bioaktive opsætninger — en bakke koster 75 kr. Sig til, hvor mange du skal bruge, så pakker vi dem klar.",
     confidence: 80
   },
   {
@@ -345,7 +345,7 @@ const conversations = [
     messages: [
       { from: "customer", text: "Kan I reservere en af gargoyle-ungerne fra det nye kuld til mig? Den med de orange striber på billedet.", time: "06.32" },
     ],
-    aiDraft: "Hej Nikolaj! Vi kan sagtens reservere den til dig. Aske bekræfter pris og hvor længe vi kan holde den af.",
+    aiDraft: "Hej Nikolaj! Vi kan sagtens reservere den til dig. Vi bekræfter pris og hvor længe vi kan holde den af.",
     confidence: 85
   },
   {
@@ -361,9 +361,9 @@ const conversations = [
     status: "resolved", unread: false,
     messages: [
       { from: "customer", text: "Sælger I stadig Phelsuma-daggekkoer? Så et opslag fra messen i Aars.", time: "03.40" },
-      { from: "shop", text: "Hej Freja! Ja, vi har et par styk tilbage. Skriv gerne hvilken art du kigger efter, så finder Aske dem frem 🦎", time: "03.52" },
+      { from: "shop", text: "Hej Freja! Ja, vi har et par styk tilbage. Skriv gerne hvilken art du kigger efter, så finder vi dem frem 🦎", time: "03.52" },
       { from: "customer", text: "Fedt, jeg er interesseret i klassisk grandis. Hvordan foregår afhentning?", time: "03.58" },
-      { from: "shop", text: "Vi aftaler tid og sted, når Aske alligevel er i nærheden — ellers sender vi med GLS. Skriver til dig, når vi har en dato.", time: "04.05" },
+      { from: "shop", text: "Vi aftaler tid og sted, når vi alligevel er i nærheden — ellers sender vi med GLS. Skriver til dig, når vi har en dato.", time: "04.05" },
     ],
     aiDraft: null
   },
@@ -382,7 +382,7 @@ const conversations = [
     messages: [
       { from: "customer", text: "Hej! Fulgte jer fra Reptilmessen i Rødovre — sælger I stadig kronegekkoer, og hvad koster en unge cirka?", time: "00.05" },
     ],
-    aiDraft: "Hej Ida! Ja, vi har kronegekkoer 🦎 Aske vender tilbage med pris og hvilke unger der er tilbage fra kuldet.",
+    aiDraft: "Hej Ida! Ja, vi har kronegekkoer 🦎 Vi vender tilbage med pris og hvilke unger der er tilbage fra kuldet.",
     confidence: 82
   },
 ];

@@ -1,14 +1,14 @@
 # Brief
 
-**The client.** Gekkoriget, a Danish breeder and seller of New Caledonian
-geckos (crested, chahoua, leachianus, day geckos) and isopods for bioactive
-setups. Run by Aske. Customers reach him on Facebook Messenger. What Doc could
-and couldn't confirm is in `GEKKORIGET.md`; nothing about prices, hours or
-address is published, so the prototype never states them as fact.
+**The client.** A small Danish gecko breeder and shop: New Caledonian geckos
+(crested, chahoua, leachianus, day geckos) and isopods for bioactive setups.
+One owner, customers on Facebook Messenger. The real shop is not named
+anywhere in this repo, and no real data about it is used. Every name,
+message and price in the prototype is invented.
 
-**The problem.** He gets flooded with customer messages and can't keep up.
+**The problem.** The owner gets flooded with customer messages and can't keep up.
 Most are routine: availability, reservations, setup questions, pickup. A few
-are about a sick or struggling animal and need him personally.
+are about a sick or struggling animal and need the owner personally.
 
 **Language.** Danish, "du". The interface and the sample data are Danish.
 
