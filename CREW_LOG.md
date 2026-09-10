@@ -2,6 +2,21 @@
 
 Newest first. One entry per session.
 
+## 2026-09-10 — Overview as the landing view; the product becomes Gekkoriget's
+
+Ops built the overview. Doc researched the shop. Scribe rewrote data and copy in Danish. Mech reviewed layout. Vera ran 14 checks at 1200px and 390px, all passed, no console errors.
+
+- New landing view: Overblik. Tiles for Kræver dig, Klar til at sende, Sendt i dag (AI vs dig), Åbne samtaler by channel. The flagged conversations listed right there. A week of replies per day as a stacked bar (sample numbers until a channel is wired; marked in code).
+- Top bar with Overblik / Indbakke and a red count on Indbakke.
+- Doc (`GEKKORIGET.md`): Gekkoriget is a Danish New Caledonian gecko breeder run by Aske, reachable on Facebook. No prices, hours or address are published anywhere; the website is an empty theme. Nothing unconfirmed is stated as fact.
+- Scribe: all ten conversations are now Gekkoriget customers about kronegekkoer, chahoua, leachianus, daggekkoer, bænkebidere and bioaktive setups. Whole interface in Danish, "du". One name per concept. Only one draft quotes a price and the array carries a comment saying prices are invented. One conversation on Instagram to show the multi-channel shape.
+- Mech: nav tap targets on phones, arrows on the clickable tiles, red/green number colours as one pair of variables, two dead rules removed.
+- Sent-today attribution: an unedited AI draft counts as AI, an edited one or a manual reply counts as you.
+
+Not verified: iOS Safari on a real phone.
+
+Next: wire Messenger. The prototype has nothing left to prove on fake data. Second: the health classifier and a small price/stock table Aske owns, so drafts only quote what he's written down.
+
 ## 2026-09-09 — Sidebar becomes a triage queue
 
 Ops built it, Mech reviewed layout, Scribe reviewed copy, Vera ran all of it in headless Chromium at 1200px and 390px. All 20 checks passed, no console errors.
