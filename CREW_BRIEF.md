@@ -1,9 +1,16 @@
 # Brief
 
-**The problem.** A small exotic pet shop gets flooded with customer messages
-and the owner can't keep up. Most are routine: hours, stock, prices, "can you
-hold one". A few are about a sick or struggling animal and need the owner
-personally.
+**The client.** Gekkoriget, a Danish breeder and seller of New Caledonian
+geckos (crested, chahoua, leachianus, day geckos) and isopods for bioactive
+setups. Run by Aske. Customers reach him on Facebook Messenger. What Doc could
+and couldn't confirm is in `GEKKORIGET.md`; nothing about prices, hours or
+address is published, so the prototype never states them as fact.
+
+**The problem.** He gets flooded with customer messages and can't keep up.
+Most are routine: availability, reservations, setup questions, pickup. A few
+are about a sick or struggling animal and need him personally.
+
+**Language.** Danish, "du". The interface and the sample data are Danish.
 
 **The product.** An inbox that triages. AI drafts the routine replies so the
 owner approves rather than writes. Anything that smells like an animal's health
