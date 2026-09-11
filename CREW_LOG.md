@@ -2,6 +2,10 @@
 
 Newest first. One entry per session.
 
+## 2026-09-11 — Parked
+
+Owner's call: not sure it needs more work. Everything is on main and live on GitHub Pages. If it's picked up again, the open recommendation is to move it to a real project (Vite, React, Tailwind, shadcn/ui) before wiring the first channel, so the design stops being hand-argued CSS. Also still open: the git history carries a removed research file naming the real shop and its owner; rewriting that history is the owner's call.
+
 ## 2026-09-10 — Hierarchy pass
 
 The owner's real complaint was font and colour hierarchy, not the palette. Ops did the pass (Mech's model hit a rate limit mid-round; her three palette directions and the structural exploration are in scratch, not shipped). Vera ran 23 checks at 1200px and 390px; two real catches, both fixed: ink-3 was under 4.5:1 on the page ground, and the bold tags in the figure strip were a stray 700.
